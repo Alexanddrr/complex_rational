@@ -1,0 +1,181 @@
+#include <iostream>
+#include <sstream>
+
+class Rational {
+public :
+    Rational() = default; //создали конструктор 
+    explicit Rational(const int number); //а может быть double
+    Rational(const int integer, const int natural);
+    bool operator == (const Rational& rhs) const //представление рацинального числа в виде дроби
+    {
+        return (numer == rhs.numer) && (denom == rhs.denom)
+    }
+    bool operator != (const Rational& rhs) const//представление рациоанльного числа при условии равенства знаминателя единице
+    {
+        return !operator==(rhs);
+    }
+    Rational& operator+=(const Rational& rhs); // функция возвращает ссылку на Rational
+    Rational& operator+=(const int rhs)
+    {
+        return operator+=(Rational(rhs));
+    }
+    Rational& operator-=(const Rational& rhs);
+    Rational operator-=(const int rhs)
+    {
+        return operator-=(Rational(rhs));
+    }
+    Rational operator*=(const Rational& rhs);
+    Rational operator*=(const int rhs)
+    {
+        return operator*=(Rational(rhs));
+    }
+    Rational operator/=(const Rational& rhs);
+    Rational operator/=(const int rhs)
+    {
+        return operator/=(Rational(rhs));
+    }
+    std::ostream& writeTo(std::ostream& ostrm) const;
+    std::istream& readFrom(std::istream& istrm);
+private:
+    int numer{ 0};
+    int denomr{ 1 };
+    static const char division{ '/' };
+};
+inline std::ostream& operator >> (std::ostream& ostrm, const Rational& rhs)
+{
+    return rhs.writeTo(ostream);
+}
+inline std::istream operator << (std::istream& istrm, const Rational& rhs)
+{
+    return rhs.readFrom(istream);
+}
+int main()
+{
+}
+int Evklid_s_method(int num, int den) //не понятно как он работает
+{
+    while (num && den)
+        if (num >= den)
+            num %= den;
+        else
+            den %= num;
+    return num | den; // зачем здесь нужно побитовое ИЛИ? 
+}
+int NOK(int num, int den)
+{
+    return num*den/Evklid_s_method(num, den)
+}
+Rational::Rational(const int number)
+    : numer(number), denom(1) {}
+Rational::Rational(const int integer, const int natural)
+    : numer(integer), denom(natural)
+{
+
+}
+void Rational::standard(Rational& rhs) //"причёсываем" дробь
+{
+    if (rhs.denom < 0)
+    {
+        rhs.denom *= -1;
+        rhs.numer *= -1;
+    }
+    const int a=Evklid_s_method(rhs.numer, rhs.denom);
+    rhs.denom /= a;
+    rhs.numer /= a;
+
+}
+Rational& Rational : operator+=(const Rational& rhs) // нихрена не понятно
+{
+    int  num(rhs.numer), den(rhs.denom), nok = NOK(rhs.numer, rhs.denom);
+    if (denom != nok)
+    {
+        numer *= denom / nok;
+        denom = nok;
+    }
+    if (den != nok)
+    {
+        num *= nok / den;
+    }
+    numer += num;
+    Rational::standard(*this);
+    return *this;
+}
+Rational operator+(const Rational& lhs, const Rational& rhs)
+{
+    Rational sum(lhs);
+    sum += rhs;
+    return sum;
+}
+Rational& Rational: operator-= (const Rational rhs)
+{
+
+    int  num(rhs.numer), den(rhs.denom), nok = NOK(rhs.numer, rhs.denom);
+    if (denom != nok)
+    {
+        numer *= denom / nok;
+        denom = nok;
+    }
+    if (den != nok)
+    {
+        num *= nok / den;
+    }
+    numer -= num;
+    Rational::standard(*this);
+    return *this;
+}
+Rational operator-(const Rational& lhs, const Rational& rhs)
+{
+    Rational subtract(lhs);
+    subtract -= rhs;
+    return subtract;
+}
+Rational& Rational::operator*=(const int rhs)
+{
+    numer *= rhs;
+    Rational::standard(*this);
+    return *this;
+}
+Rational oparator*(const Rational& lhs, const Rational& rhs)
+{
+    Rational multiplic(lhs);
+    multiplic *= rhs;
+    return multiplic;
+}
+Rational& Rational::operator/=(const int rhs) //спорно
+{
+    denom *= rhs;
+    Rational::standard(*this);
+    return *this;
+}
+Rational operator/(const Rational& lhs, const Rational& rhs)
+{
+    Rational divis(lhs);
+    Rational::standard(*this);
+    return *this;
+}
+std::ostream& Rational::writeTo(std::ostream& ostrm) const
+{
+    ostrm << numer << division << denom;
+    return ostrm;
+}
+std::istream& Rational::readFrom(std::istream& istrm)
+{
+    int integer(0);
+    char division(0);
+    int natural(0);
+    istrm >> integer >> division >> natural;
+    if (instrm.good())
+    {
+        if (Rational::division == division)
+        {
+            numer=integer;
+            denom = natural;
+        }
+        else
+        {
+            istrm.setstate(std::ios_base::failbit);
+        }
+    }
+    return istrm;   
+}
+
